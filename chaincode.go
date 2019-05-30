@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -11,7 +10,7 @@ import (
 
 var (
 	logger = shim.NewLogger("Chaincode")
-	unknownFunction = errors.New("Unknown function")
+	unknownFunction = "Unknown function"
 )
 
 type AssetChaincode struct {
@@ -40,7 +39,7 @@ func (cc *AssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response
 	case "set":
 		result, err = set(stub, args)
 	default:
-		logger.Error(unknownFunction.Error())
+		logger.Error(unknownFunction)
 		return shim.Error(unknownFunction)
 	}
 

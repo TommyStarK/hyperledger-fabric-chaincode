@@ -16,13 +16,18 @@ func history(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get asset: %s with error: %s", args[0], err)
 	}
-	if value == nil {
+
+	if history == nil {
 		return nil, fmt.Errorf("Asset not found: %s", args[0])
 	}
 
-	batch := make([]string, 10)
-	for value.HasNext() {
-		batch = append(batch, value.Next())
+	batch := make([]string, 8)
+	for history.HasNext() {
+		modif, err := history.Next()
+		if err != nil {
+			continue
+		}
+		batch = append(batch, modif.String())
 	}
 
 	return []byte(strings.Join(batch, "\n")), nil
