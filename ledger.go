@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"encoding/json"
 	"strings"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -42,6 +43,7 @@ func get(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get asset: %s with error: %s", args[0], err.Error())
 	}
+	
 	if value == nil {
 		return nil, fmt.Errorf("Asset not found: %s", args[0])
 	}
@@ -54,8 +56,19 @@ func set(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		return nil, fmt.Errorf("Incorrect arguments. Expecting a key and a value")
 	}
 
-	err := stub.PutState(args[0], []byte(args[1]))
+	var asset Asset
+	if err := json.Unmarshal([]byte(args[1]), &asset); err != nil {
+		return nil, fmt.Errorf("Unmarshal failed: %s", err.Error())
+	}
+
+	asset.TxID = stub.GetTxID()
+
+	b, err := json.Marshal(&asset)
 	if err != nil {
+		return nil, fmt.Errorf("Marshal failed: %s", err.Error())
+	}
+
+	if err := stub.PutState(args[0], b); err != nil {
 		return nil, fmt.Errorf("Failed to set asset: %s", args[0])
 	}
 

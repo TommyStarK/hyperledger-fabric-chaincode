@@ -25,7 +25,7 @@ func (cc *AssetChaincode) Init(stub shim.ChaincodeStubInterface) peer.Response {
 func (cc *AssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	function, args := stub.GetFunctionAndParameters()
 	logger.Debug(function, args)
-	
+
 	var err error
 	var result []byte
 
