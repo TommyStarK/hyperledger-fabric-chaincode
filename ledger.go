@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"strings"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
@@ -22,7 +23,7 @@ func history(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		return nil, fmt.Errorf("Asset not found: %s", args[0])
 	}
 
-	batch := make([]string, 8)
+	batch := make([]string, 0, 8)
 	for history.HasNext() {
 		modif, err := history.Next()
 		if err != nil {
@@ -43,7 +44,7 @@ func get(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get asset: %s with error: %s", args[0], err.Error())
 	}
-	
+
 	if value == nil {
 		return nil, fmt.Errorf("Asset not found: %s", args[0])
 	}
