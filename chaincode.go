@@ -9,20 +9,19 @@ import (
 )
 
 var (
-	logger = shim.NewLogger("Chaincode")
+	logger          = shim.NewLogger("Chaincode")
 	unknownFunction = "Unknown function"
 )
 
-type AssetChaincode struct {
-
+type SimpleAssetChaincode struct {
 }
 
-func (cc *AssetChaincode) Init(stub shim.ChaincodeStubInterface) peer.Response {
+func (cc *SimpleAssetChaincode) Init(stub shim.ChaincodeStubInterface) peer.Response {
 	logger.Info("Init chaincode for asset ....")
 	return shim.Success(nil)
 }
 
-func (cc *AssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
+func (cc *SimpleAssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	function, args := stub.GetFunctionAndParameters()
 	logger.Debug(function, args)
 
@@ -44,8 +43,8 @@ func (cc *AssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response
 	}
 
 	if err != nil {
-		logger.Errorf("[%s] with args (%s) failed: %s", function, strings.Join(args, "/"), err.Error())
-		return shim.Error(fmt.Sprintf("[%s] with args (%s) failed: %s", function, strings.Join(args, "/"), err.Error()))
+		logger.Errorf("[%s] with args (%s) failed: %s", function, strings.Join(args, " | "), err.Error())
+		return shim.Error(fmt.Sprintf("[%s] with args (%s) failed: %s", function, strings.Join(args, " | "), err.Error()))
 	}
 
 	return shim.Success(result)

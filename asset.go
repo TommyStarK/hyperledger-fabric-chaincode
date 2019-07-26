@@ -1,5 +1,6 @@
 package main
 
-type Asset struct {
-	TxID string `json:"txID"`
+type SimpleAsset struct {
+	Content string `json:"content"`
+	TxID    string `json:"txID"`
 }

@@ -16,7 +16,7 @@ func history(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	history, err := stub.GetHistoryForKey(args[0])
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get asset: %s with error: %s", args[0], err)
+		return nil, fmt.Errorf("Failed to get asset: %s, error: %s", args[0], err)
 	}
 
 	if history == nil {
@@ -45,8 +45,9 @@ func get(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		return nil, fmt.Errorf("Failed to get asset: %s with error: %s", args[0], err.Error())
 	}
 
+	// asset not found
 	if value == nil {
-		return nil, fmt.Errorf("Asset not found: %s", args[0])
+		return nil, nil
 	}
 
 	return value, nil
@@ -57,7 +58,7 @@ func set(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		return nil, fmt.Errorf("Incorrect arguments. Expecting a key and a value")
 	}
 
-	var asset Asset
+	var asset SimpleAsset
 	if err := json.Unmarshal([]byte(args[1]), &asset); err != nil {
 		return nil, fmt.Errorf("Unmarshal failed: %s", err.Error())
 	}
