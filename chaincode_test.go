@@ -25,6 +25,7 @@ func TestInvokeUnkownFunction(t *testing.T) {
 		t.Fail()
 	}
 }
+
 func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }

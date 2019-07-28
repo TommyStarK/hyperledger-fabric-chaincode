@@ -13,19 +13,20 @@ func history(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 		return nil, fmt.Errorf("Incorrect arguments. Expecting a key")
 	}
 
-	history, err := stub.GetHistoryForKey(args[0])
-
+	resultIterator, err := stub.GetHistoryForKey(args[0])
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get asset: %s, error: %s", args[0], err)
+		return nil, fmt.Errorf("Failed to get asset: %s, error: %s", args[0], err.Error())
 	}
 
-	if history == nil {
+	if resultIterator == nil {
 		return nil, fmt.Errorf("Asset not found: %s", args[0])
 	}
 
+	defer resultIterator.Close()
+
 	batch := make([]string, 0, 8)
-	for history.HasNext() {
-		modif, err := history.Next()
+	for resultIterator.HasNext() {
+		modif, err := resultIterator.Next()
 		if err != nil {
 			continue
 		}
