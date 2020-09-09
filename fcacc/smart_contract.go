@@ -22,11 +22,7 @@ func (sc *SmartContract) Init(ctx contractapi.TransactionContextInterface) error
 		return err
 	}
 
-	if err := ctx.GetStub().PutState("default-asset", assetAsBytes); err != nil {
-		return err
-	}
-
-	return nil
+	return ctx.GetStub().PutState("default-asset", assetAsBytes)
 }
 
 func (sc *SmartContract) Delete(ctx contractapi.TransactionContextInterface, key string) error {
@@ -62,9 +58,9 @@ func (sc *SmartContract) Store(ctx contractapi.TransactionContextInterface, key,
 		return err
 	}
 
-	if err := ctx.GetStub().PutState(key, assetAsBytes); err != nil {
-		return err
-	}
+	return ctx.GetStub().PutState(key, assetAsBytes)
+}
 
-	return nil
+func (sc *SmartContract) SetEvent(ctx contractapi.TransactionContextInterface, eventFilter, message string) error {
+	return ctx.GetStub().SetEvent(eventFilter, []byte(message))
 }
