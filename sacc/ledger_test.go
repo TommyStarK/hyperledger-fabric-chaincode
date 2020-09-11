@@ -16,7 +16,7 @@ func TestQueryWithMissingArgs(t *testing.T) {
 
 func TestQueryUnknownKey(t *testing.T) {
 	result := mstub.MockInvoke("test-query-unknown-key", [][]byte{[]byte("query"), []byte("unknown-key")})
-	if len(string(result.Payload)) > 0 {
+	if len(result.Payload) > 0 {
 		t.Error("payload should be empty as we queried an unknown key")
 	}
 }
@@ -86,7 +86,7 @@ func TestPrivateDataFailureCases(t *testing.T) {
 	}
 
 	resultQuery = mstub.MockInvoke("test-query-private-data-unknown-key", [][]byte{[]byte("queryPrivateData"), []byte("unknown-key")})
-	if len(string(resultQuery.Payload)) > 0 {
+	if len(resultQuery.Payload) > 0 {
 		t.Error("payload should be empty as we queried an unknown key")
 	}
 }
