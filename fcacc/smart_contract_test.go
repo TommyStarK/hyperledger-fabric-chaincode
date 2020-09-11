@@ -50,13 +50,11 @@ func TestQueryLedgerAfterInit(t *testing.T) {
 	}
 
 	if asset.Content != "default" {
-		t.Log(`asset content should be a string with value "default"`)
-		t.Fail()
+		t.Error(`asset content should be a string with value "default"`)
 	}
 
 	if asset.TxID != "init-ledger" {
-		t.Log(`asset transaction ID should be a string with value "init-ledger"`)
-		t.Fail()
+		t.Error(`asset transaction ID should be a string with value "init-ledger"`)
 	}
 }
 
@@ -70,8 +68,7 @@ func TestStoreAsset1(t *testing.T) {
 func TestQueryAsset1(t *testing.T) {
 	result := teststub.MockInvoke("query-ledger-asset1", [][]byte{[]byte("Query"), []byte("asset1")})
 	if result.Status != shim.OK {
-		t.Logf("failed to query the ledger: %s", result.GetMessage())
-		t.Fail()
+		t.Errorf("failed to query the ledger: %s", result.GetMessage())
 	}
 
 	var asset = &SimpleAsset{}
@@ -80,13 +77,11 @@ func TestQueryAsset1(t *testing.T) {
 	}
 
 	if asset.Content != "foo" {
-		t.Log(`asset content should be a string with value "foo"`)
-		t.Fail()
+		t.Error(`asset content should be a string with value "foo"`)
 	}
 
 	if asset.TxID != "store-asset1" {
-		t.Log(`asset transaction ID should be a string with value "store-asset1"`)
-		t.Fail()
+		t.Error(`asset transaction ID should be a string with value "store-asset1"`)
 	}
 }
 
@@ -100,8 +95,7 @@ func TestUpdateAsset1(t *testing.T) {
 func TestQueryUpdatedAsset1(t *testing.T) {
 	result := teststub.MockInvoke("query-updated-asset1", [][]byte{[]byte("Query"), []byte("asset1")})
 	if result.Status != shim.OK {
-		t.Logf("failed to query the ledger: %s", result.GetMessage())
-		t.Fail()
+		t.Errorf("failed to query the ledger: %s", result.GetMessage())
 	}
 
 	var asset = &SimpleAsset{}
@@ -110,13 +104,11 @@ func TestQueryUpdatedAsset1(t *testing.T) {
 	}
 
 	if asset.Content != "bar" {
-		t.Log(`asset content should be a string with value "bar"`)
-		t.Fail()
+		t.Error(`asset content should be a string with value "bar"`)
 	}
 
 	if asset.TxID != "update-asset1" {
-		t.Log(`asset transaction ID should be a string with value "update-asset1"`)
-		t.Fail()
+		t.Error(`asset transaction ID should be a string with value "update-asset1"`)
 	}
 }
 
@@ -129,19 +121,54 @@ func TestDeleteDefaultAsset(t *testing.T) {
 
 func TestQueryUnknownAsset(t *testing.T) {
 	result := teststub.MockInvoke("query-unknown-asset", [][]byte{[]byte("Query"), []byte("unknown-asset")})
-	if result.Status != shim.ERROR {
-		t.Log("querying an unknown asset should have failed")
-		t.Fail()
-	}
-
-	if result.Message != "failed to query the ledger for specific 'key': unknown-asset" {
-		t.Log(`response message should equal "failed to query the ledger for specific 'key': unknown-asset"`)
-		t.Fail()
+	if result.Status != shim.OK {
+		t.Fatal(result.GetMessage())
 	}
 
 	if len(result.Payload) > 0 {
-		t.Log("payload response should be empty")
-		t.Fail()
+		t.Error("payload response should be empty")
+	}
+}
+
+func TestSetEvent(t *testing.T) {
+	result := teststub.MockInvoke("set-event", [][]byte{[]byte("SetEvent"), []byte("dummy"), []byte("test")})
+	if result.Status != shim.OK {
+		t.Fatal(result.GetMessage())
+	}
+}
+func TestPrivateData(t *testing.T) {
+	teststub.TransientMap = make(map[string][]byte)
+	teststub.TransientMap["test-pdc"] = []byte("this is a test")
+
+	resultStore := teststub.MockInvoke("test-store-private-data", [][]byte{[]byte("StorePrivateData")})
+	if resultStore.Status != shim.OK {
+		t.Error("chaincode invoke 'StorePrivateData' should have succeed")
+	}
+
+	resultQuery := teststub.MockInvoke("test-query-private-data", [][]byte{[]byte("QueryPrivateData"), []byte("test-pdc")})
+	if resultQuery.Status != shim.OK {
+		t.Error("chaincode invoke 'QueryPrivateData' should have succeed")
+	}
+
+	if string(resultQuery.Payload) != "this is a test" {
+		t.Error(`payload as string should equal "this is a test"`)
+	}
+}
+
+func TestFailureCases(t *testing.T) {
+	result := teststub.MockInvoke("store-dummy", [][]byte{[]byte("Store"), []byte("dummy"), nil})
+	if result.Status != shim.ERROR {
+		t.Fatal(result.GetMessage())
+	}
+
+	resultQuery := teststub.MockInvoke("test-query-private-data-no-args", [][]byte{[]byte("QueryPrivateData")})
+	if resultQuery.Status != shim.ERROR {
+		t.Error("should have failed as we provided no args")
+	}
+
+	resultQuery = teststub.MockInvoke("test-query-private-data-unknown-key", [][]byte{[]byte("QueryPrivateData"), []byte("unknown-key")})
+	if len(resultQuery.Payload) > 0 {
+		t.Error("payload should be empty as we queried an unknown key")
 	}
 }
 
