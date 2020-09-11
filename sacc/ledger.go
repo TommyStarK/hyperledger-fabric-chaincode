@@ -14,7 +14,7 @@ func query(stub shim.ChaincodeStubInterface, args []string) (string, error) {
 
 	value, err := stub.GetState(args[0])
 	if err != nil {
-		return "", fmt.Errorf("Failed to retrieve value of the specified key '%s': %s", args[0], err.Error())
+		return "", fmt.Errorf("Failed to retrieve value of the specified key '%s': %w", args[0], err)
 	}
 
 	// asset not found
@@ -32,7 +32,7 @@ func queryPrivateData(stub shim.ChaincodeStubInterface, args []string) (string, 
 
 	value, err := stub.GetPrivateData("dummy", args[0])
 	if err != nil {
-		return "", fmt.Errorf("Failed to retrieve value of the specified key '%s': %s", args[0], err.Error())
+		return "", fmt.Errorf("Failed to retrieve value of the specified key '%s': %w", args[0], err)
 	}
 
 	// not found
@@ -50,18 +50,18 @@ func store(stub shim.ChaincodeStubInterface, args []string) (string, error) {
 
 	var asset SimpleAsset
 	if err := json.Unmarshal([]byte(args[1]), &asset); err != nil {
-		return "", fmt.Errorf("Unmarshal failed: %s", err.Error())
+		return "", fmt.Errorf("Unmarshal failed: %w", err)
 	}
 
 	asset.TxID = stub.GetTxID()
 
 	b, err := json.Marshal(&asset)
 	if err != nil {
-		return "", fmt.Errorf("Marshal failed: %s", err.Error())
+		return "", fmt.Errorf("Marshal failed: %w", err)
 	}
 
 	if err := stub.PutState(args[0], b); err != nil {
-		return "", fmt.Errorf("Failed to put key '%s' with value (%s) into the transaction's writeset ", args[0], args[1])
+		return "", fmt.Errorf("Failed to put key '%s' with value (%s) into the transaction's writeset: %w", args[0], args[1], err)
 	}
 
 	return "", nil
@@ -75,7 +75,7 @@ func storePrivateData(stub shim.ChaincodeStubInterface, args []string) (string, 
 
 	for key, value := range tmap {
 		if err := stub.PutPrivateData("dummy", key, value); err != nil {
-			return "", fmt.Errorf("Failed to put key '%s' with value (%s) into the transaction's private writeset ", key, value)
+			return "", fmt.Errorf("Failed to put key '%s' with value (%s) into the transaction's private writeset: %w", key, value, err)
 		}
 	}
 
@@ -88,7 +88,7 @@ func setEvent(stub shim.ChaincodeStubInterface, args []string) (string, error) {
 	}
 
 	if err := stub.SetEvent(args[0], []byte(args[1])); err != nil {
-		return "", fmt.Errorf("Failed to set event: %s", args[0])
+		return "", fmt.Errorf("Failed to set event %s: %w", args[0], err)
 	}
 
 	return "", nil
