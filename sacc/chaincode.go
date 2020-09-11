@@ -8,13 +8,16 @@ import (
 	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
+// SimpleAssetChaincode ...
 type SimpleAssetChaincode struct {
 }
 
+// Init ...
 func (cc *SimpleAssetChaincode) Init(stub shim.ChaincodeStubInterface) peer.Response {
 	return shim.Success(nil)
 }
 
+// Invoke ...
 func (cc *SimpleAssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	var (
 		err    error
@@ -28,8 +31,12 @@ func (cc *SimpleAssetChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Re
 		return cc.Init(stub)
 	case "query":
 		result, err = query(stub, args)
+	case "queryPrivateData":
+		result, err = queryPrivateData(stub, args)
 	case "store":
 		result, err = store(stub, args)
+	case "storePrivateData":
+		result, err = storePrivateData(stub, args)
 	case "setEvent":
 		result, err = setEvent(stub, args)
 	default:
